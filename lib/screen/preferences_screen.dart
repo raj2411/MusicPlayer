@@ -14,9 +14,30 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
+
   final List<String> categories = [
-    "Sports", "Music", "Technology", "Art", "Travel", "Fashion", "Food", "Movies", "Books", "Games"
+    "Pop",
+    "Dance Pop",
+    "House",
+    "Teen Pop",
+    "Electro House",
+    "EDM",
+    "Pop Rap",
+    "Pop Christmas",
+    "Pop Rock",
+    "R&B",
+    "Big Room",
+    "Alternative Hip Hop",
+    "Urban Contemporary",
+    "Progressive Electro House",
+    "Indie R&B",
+    "Indietronica",
+    "Permanent Wave",
+    "Synthpop",
+    "Contemporary Country",
+    "Neo Mellow"
   ];
+
 
   final Set<String> selectedCategories = {};
 
