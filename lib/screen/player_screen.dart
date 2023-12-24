@@ -37,7 +37,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
       });
     });
 
-    _playMusic(widget.currentSong.audioUrl);
+    _playMusic(widget.currentSong.audioPreviewUrl);
   }
 
   Future<void> _playMusic(String url) async {
@@ -59,11 +59,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.network(widget.currentSong.imageUrl, height: 250, width: 250, fit: BoxFit.cover), // Album art
+            Image.network(widget.currentSong.albumCover, height: 250, width: 250, fit: BoxFit.cover), // Album art
             SizedBox(height: 20),
             Text(widget.currentSong.title, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)), // Song title
             SizedBox(height: 8),
-            Text(widget.currentSong.artist, style: TextStyle(fontSize: 18, color: Colors.grey)), // Artist name
+            Text(widget.currentSong.artists.toString(), style: TextStyle(fontSize: 18, color: Colors.grey)), // Artist name
             SizedBox(height: 20),
             Slider(
               value: _position.inSeconds.toDouble(),
