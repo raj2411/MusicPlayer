@@ -24,18 +24,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchSongs() async {
     try {
       String email = FirebaseAuth.instance.currentUser?.email ?? "";
-      var response = await http.get(Uri.parse('http://your-flask-api-url/recommended-songs?email=$email'));
+      print("Fetching songs for email: $email");
+      var url = Uri.parse('http://127.0.0.1:5000/recommended-songs?email=$email');
+      var response = await http.get(url);
+      print("Received response: ${response.statusCode}");
       if (response.statusCode == 200) {
         var data = json.decode(response.body) as List;
+        print("Data received: $data");
         setState(() {
           recommendedSongs = data.map((songData) => Song.fromJson(songData)).toList();
           isLoading = false;
         });
       } else {
+        print("Failed to load songs. Status code: ${response.statusCode}");
         throw Exception('Failed to load songs');
       }
     } catch (e) {
-      print(e.toString());
+      print("Error fetching songs: ${e.toString()}");
       setState(() => isLoading = false);
     }
   }
