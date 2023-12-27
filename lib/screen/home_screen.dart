@@ -25,12 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       String email = FirebaseAuth.instance.currentUser?.email ?? "";
       print("Fetching songs for email: $email");
-      var url = Uri.parse('http://127.0.0.1:5000/recommended-songs?email=$email');
+      String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+      var url = Uri.parse('http://192.168.2.13:5000/recommended-songs?userId=$userId');
       var response = await http.get(url);
       print("Received response: ${response.statusCode}");
       if (response.statusCode == 200) {
         var data = json.decode(response.body) as List;
         print("Data received: $data");
+        if (!mounted) return; // Check if the widget is still in the widget tree
         setState(() {
           recommendedSongs = data.map((songData) => Song.fromJson(songData)).toList();
           isLoading = false;
@@ -41,15 +43,16 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       print("Error fetching songs: ${e.toString()}");
+      if (!mounted) return; // Check if the widget is still in the widget tree
       setState(() => isLoading = false);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
     String userName = FirebaseAuth.instance.currentUser?.email ?? "No name available";
     print("Current logged-in user's name: $userName");
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Recommended Songs'),

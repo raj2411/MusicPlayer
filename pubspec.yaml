@@ -40,10 +40,18 @@ dependencies:
   intl:
   firebase_core: ^2.24.2
   http: ^0.13.3
+  camera: ^0.9.4+5
+  permission_handler: ^9.2.0
+  firebase_storage: ^11.5.6
+  flutter_rating_bar: ^4.0.0
+  path_provider: ^2.0.2
+  path: ^1.8.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_rating_bar: ^4.0.0
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
