@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as Path;
 import '../models/song.dart';
 import 'rating_screen.dart';
 
@@ -16,25 +19,27 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   late AudioPlayer _audioPlayer;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
-  double _volume = 1.0; // Added for volume control
+  double _volume = 1.0;
   bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
-    _audioPlayer.setVolume(_volume); // Initialize the volume
+    _audioPlayer.setVolume(_volume);
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
       setState(() {
         _isPlaying = state == PlayerState.playing;
       });
     });
+
     _audioPlayer.onDurationChanged.listen((newDuration) {
       setState(() {
         _duration = newDuration;
       });
     });
+
     _audioPlayer.onPositionChanged.listen((newPosition) {
       setState(() {
         _position = newPosition;
@@ -61,6 +66,25 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
     return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 
+  Future<void> _uploadAndNavigate() async {
+    String localFilePath = '/storage/emulated/0/Pictures/IMG_20231227_225354.jpgs';
+    File file = File(localFilePath);
+    String fileName = Path.basename(file.path);
+    Reference storageRef = FirebaseStorage.instance.ref().child("uploaded_images/$fileName");
+
+    try {
+      await storageRef.putFile(file);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RatingScreen(currentSong: widget.currentSong),
+        ),
+      );
+    } catch (e) {
+      print('Error occurred while uploading to Firebase: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,15 +92,8 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         title: Text('Now Playing'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.star_rate), // Using a star icon for the rating button
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RatingScreen(currentSong: widget.currentSong),
-                ),
-              );
-            },
+            icon: Icon(Icons.star_rate),
+            onPressed: _uploadAndNavigate,
           ),
         ],
       ),
@@ -112,6 +129,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 IconButton(
                   icon: Icon(Icons.skip_previous),
                   onPressed: () {
+                    // Implement skip to previous song
                   },
                 ),
                 IconButton(
@@ -127,6 +145,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                 IconButton(
                   icon: Icon(Icons.skip_next),
                   onPressed: () {
+                    // Implement skip to next song
                   },
                 ),
               ],
