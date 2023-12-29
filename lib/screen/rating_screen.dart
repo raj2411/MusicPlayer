@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -119,20 +120,23 @@ class _RatingScreenState extends State<RatingScreen> {
       try {
         TaskSnapshot taskSnapshot = await uploadTask;
         if (taskSnapshot.state == TaskState.success) {
+          String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
           String imageUrl = await taskSnapshot.ref.getDownloadURL();
 
-          var request = http.MultipartRequest(
-            'POST',
+          var response = await http.post(
             Uri.parse('http://192.168.2.31:5000/submit-rating'),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({
+              'userId': userId,
+              'trackId': widget.currentSong.id,
+              'rating': _rating,
+              'imageUrl': imageUrl
+            }),
           );
-          request.fields['userId'] = userId;
-          request.fields['trackId'] = widget.currentSong.id;
-          request.fields['rating'] = _rating.toString();
-          request.fields['imageUrl'] = imageUrl;
 
-          var response = await request.send();
           if (response.statusCode == 200) {
             print('Rating submitted successfully');
+            Navigator.of(context).pop();
           } else {
             print('Failed to submit rating: ${response.statusCode}');
           }

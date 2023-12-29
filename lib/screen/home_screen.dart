@@ -12,53 +12,61 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Song> recommendedSongs = [];
+  Map<String, List<Song>> genreBasedSongs = {};
+  List<String> userPreferences = [];
   List<Song> historySongs = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchSongs();
-    fetchHistory();
+    fetchUserPreferences();
   }
 
-  Future<void> fetchSongs() async {
-    try {
-      String email = FirebaseAuth.instance.currentUser?.email ?? "";
-      String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-      var url = Uri.parse('http://192.168.2.31:5000/recommended-songs?userId=$userId');
-      var response = await http.get(url);
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body) as List;
-        setState(() {
-          recommendedSongs = data.map((songData) => Song.fromJson(songData)).toList();
-          isLoading = false;
-        });
-      } else {
-        print("Failed to load songs. Status code: ${response.statusCode}");
-        throw Exception('Failed to load songs');
+  Future<void> fetchUserPreferences() async {
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+    var userPrefsResponse = await http.get(Uri.parse('http://192.168.2.31:5000/user-preferences?userId=$userId'));
+    if (userPrefsResponse.statusCode == 200) {
+      var decodedResponse = json.decode(userPrefsResponse.body);
+      if (decodedResponse is List) {
+        userPreferences = List<String>.from(decodedResponse);
+      } else if (decodedResponse is Map<String, dynamic> && decodedResponse.containsKey('preferences')) {
+        userPreferences = List<String>.from(decodedResponse['preferences']);
       }
-    } catch (e) {
-      print("Error fetching songs: ${e.toString()}");
+      if (mounted) {
+        fetchSongsForGenres();
+        fetchHistory();
+      }
+    }
+  }
+
+  Future<void> fetchSongsForGenres() async {
+    for (String genre in userPreferences) {
+      var response = await http.get(Uri.parse('http://192.168.2.31:5000/recommendedsongs?userId=${FirebaseAuth.instance.currentUser?.uid}&genre=$genre'));
+      if (response.statusCode == 200) {
+        List<Song> songs = (json.decode(response.body) as List).map((songData) => Song.fromJson(songData)).toList();
+        if (mounted) {
+          setState(() {
+            genreBasedSongs[genre.trim()] = songs;
+          });
+        }
+      }
+    }
+    if (mounted) {
       setState(() => isLoading = false);
     }
   }
 
   Future<void> fetchHistory() async {
-    try {
-      String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-      var response = await http.get(Uri.parse('http://192.168.2.31:5000/history?userId=$userId'));
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body) as List;
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+    var response = await http.get(Uri.parse('http://192.168.2.31:5000/history?userId=$userId'));
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body) as List;
+      if (mounted) {
         setState(() {
           historySongs = data.map((songData) => Song.fromJson(songData)).toList();
         });
-      } else {
-        print("Failed to fetch history. Status code: ${response.statusCode}");
       }
-    } catch (e) {
-      print("Error fetching history: ${e.toString()}");
     }
   }
 
@@ -80,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     } else {
       print('Failed to update history');
+      // Handle the error here
     }
   }
 
@@ -142,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
           : SingleChildScrollView(
         child: Column(
           children: [
-            buildSongList(recommendedSongs, "Recommended Songs"),
+            ...userPreferences.map((genre) => buildSongList(genreBasedSongs[genre] ?? [], genre)).toList(),
             buildSongList(historySongs, "Your History"),
           ],
         ),

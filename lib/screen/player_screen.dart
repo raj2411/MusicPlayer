@@ -67,7 +67,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   }
 
   Future<void> _uploadAndNavigate() async {
-    String localFilePath = '/storage/emulated/0/Pictures/IMG_20231227_225354.jpgs';
+    String localFilePath = '/storage/emulated/0/Pictures/IMG_20231227_225354.jpg';
     File file = File(localFilePath);
     String fileName = Path.basename(file.path);
     Reference storageRef = FirebaseStorage.instance.ref().child("uploaded_images/$fileName");
