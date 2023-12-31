@@ -9,6 +9,7 @@ import 'player_screen.dart';
 import 'history_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'favorites_screen.dart';
+import './profile_screen.dart';
 
 
 
@@ -145,8 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Replace with your actual profile management widget
       HistoryScreen(), // Add this
 
-      // ProfileScreen(), // Uncomment and implement the ProfileScreen widget
-      Text('Profile Management Placeholder'),
+      ProfileScreen(),
     ];
   }
 
