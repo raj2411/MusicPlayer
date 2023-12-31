@@ -5,6 +5,8 @@ import 'package:untitled/screen/preferences_screen.dart';
 import '../widgets/input_field_widgets.dart';
 import '../widgets/primary_button.dart';
 import 'login_screen.dart';
+import './app_utils.dart';
+
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);

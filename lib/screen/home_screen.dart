@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchUserFavorites() async {
     final userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     final response = await http.get(
-      Uri.parse('http://192.168.2.31:5000/favorite-songs?userId=$userId'),
+      Uri.parse('${backendUrl}/favorite-songs?userId=$userId'),
     );
 
     if (response.statusCode == 200) {
@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchUserPreferences() async {
     String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-    var userPrefsResponse = await http.get(Uri.parse('http://192.168.2.31:5000/user-preferences?userId=$userId'));
+    var userPrefsResponse = await http.get(Uri.parse('${backendUrl}/user-preferences?userId=$userId'));
     if (userPrefsResponse.statusCode == 200) {
       var decodedResponse = json.decode(userPrefsResponse.body);
       if (decodedResponse is List) {
@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchSongsForGenres() async {
     for (String genre in userPreferences) {
-      var response = await http.get(Uri.parse('http://192.168.2.31:5000/recommendedsongs?userId=${FirebaseAuth.instance.currentUser?.uid}&genre=$genre'));
+      var response = await http.get(Uri.parse('${backendUrl}/recommendedsongs?userId=${FirebaseAuth.instance.currentUser?.uid}&genre=$genre'));
       if (response.statusCode == 200) {
         List<Song> songs = (json.decode(response.body) as List).map((songData) => Song.fromJson(songData)).toList();
         if (mounted) {
@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchHistory() async {
     String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-    var response = await http.get(Uri.parse('http://192.168.2.31:5000/history?userId=$userId'));
+    var response = await http.get(Uri.parse('${backendUrl}/history?userId=$userId'));
     if (response.statusCode == 200) {
       var data = json.decode(response.body) as List;
       if (mounted) {
@@ -111,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     final String songId = song.id;
     final response = await http.post(
-      Uri.parse('http://192.168.2.31:5000/update-history'),
+      Uri.parse('${backendUrl}/update-history'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'userId': userId, 'songId': songId}),
     );

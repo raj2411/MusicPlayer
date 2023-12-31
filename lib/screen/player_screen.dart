@@ -8,6 +8,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart' as Path;
 import '../models/song.dart';
 import 'rating_screen.dart';
+import './app_utils.dart';
+
 
 class MusicPlayerScreen extends StatefulWidget {
   final Song currentSong;
@@ -67,7 +69,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   void checkIfFavorite() async {
     final String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     final response = await http.post(
-      Uri.parse('http://192.168.2.31:5000/check-favorite'),
+      Uri.parse('${backendUrl}/check-favorite'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'userId': userId, 'trackId': widget.currentSong.id}),
     );
@@ -85,7 +87,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   void _toggleFavorite() async {
     final String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     final response = await http.post(
-      Uri.parse('http://192.168.2.31:5000/toggle-favorite'),
+      Uri.parse('${backendUrl}/toggle-favorite'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'userId': userId, 'trackId': widget.currentSong.id}),
     );

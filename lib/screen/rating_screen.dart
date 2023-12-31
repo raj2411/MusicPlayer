@@ -10,6 +10,8 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../models/song.dart';
+import './app_utils.dart';
+
 
 class RatingScreen extends StatefulWidget {
   final Song currentSong;
@@ -124,7 +126,7 @@ class _RatingScreenState extends State<RatingScreen> {
           String imageUrl = await taskSnapshot.ref.getDownloadURL();
 
           var response = await http.post(
-            Uri.parse('http://192.168.2.31:5000/submit-rating'),
+            Uri.parse('${backendUrl}/submit-rating'),
             headers: {"Content-Type": "application/json"},
             body: jsonEncode({
               'userId': userId,

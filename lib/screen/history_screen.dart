@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'player_screen.dart';
 import 'favorites_screen.dart';
+import './app_utils.dart';
+
 
 class HistoryScreen extends StatefulWidget {
   @override
@@ -24,7 +26,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Future<void> fetchHistory() async {
     String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
-    var response = await http.get(Uri.parse('http://192.168.2.31:5000/history?userId=$userId'));
+    var response = await http.get(Uri.parse('${backendUrl}/history?userId=$userId'));
     if (response.statusCode == 200) {
       var data = json.decode(response.body) as List;
       setState(() {

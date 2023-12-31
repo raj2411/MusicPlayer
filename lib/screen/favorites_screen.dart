@@ -4,6 +4,7 @@ import 'player_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import './app_utils.dart';
 
 
 class FavoritesScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Future<void> fetchFavoriteSongs() async {
     final userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     final response = await http.get(
-      Uri.parse('http://192.168.2.31:5000/favorite-songs?userId=$userId'),
+      Uri.parse('${backendUrl}/favorite-songs?userId=$userId'),
     );
 
     if (response.statusCode == 200) {

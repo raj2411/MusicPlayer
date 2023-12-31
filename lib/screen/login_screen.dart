@@ -5,6 +5,8 @@ import 'package:untitled/screen/registration_screen.dart';
 import '../widgets/input_field_widgets.dart';
 import '../widgets/primary_button.dart';
 import 'home_screen.dart';
+import './app_utils.dart';
+
 
 
 class LoginScreen extends StatefulWidget {
