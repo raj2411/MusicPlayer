@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -21,6 +24,8 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   Duration _duration = Duration.zero;
   double _volume = 1.0;
   bool _isPlaying = false;
+  bool isFavorite = false;
+
 
   @override
   void initState() {
@@ -45,7 +50,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
         _position = newPosition;
       });
     });
-
+    checkIfFavorite();
     _playMusic(widget.currentSong.audioPreviewUrl);
   }
 
@@ -57,6 +62,42 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
   void dispose() {
     _audioPlayer.dispose();
     super.dispose();
+  }
+
+  void checkIfFavorite() async {
+    final String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+    final response = await http.post(
+      Uri.parse('http://192.168.2.31:5000/check-favorite'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': userId, 'trackId': widget.currentSong.id}),
+    );
+
+    if (response.statusCode == 200) {
+      var responseBody = json.decode(response.body);
+      setState(() {
+        isFavorite = responseBody['isFavorite'];
+      });
+    } else {
+      print("Error checking favorite");
+    }
+  }
+
+  void _toggleFavorite() async {
+    final String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
+    final response = await http.post(
+      Uri.parse('http://192.168.2.31:5000/toggle-favorite'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'userId': userId, 'trackId': widget.currentSong.id}),
+    );
+
+    if (response.statusCode == 200) {
+      var responseBody = json.decode(response.body);
+      setState(() {
+        isFavorite = responseBody['isFavorite'];
+      });
+    } else {
+      print("Error toggling favorite");
+    }
   }
 
   String formatDuration(Duration duration) {
@@ -94,6 +135,11 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
           IconButton(
             icon: Icon(Icons.star_rate),
             onPressed: _uploadAndNavigate,
+          ),
+          IconButton(
+            icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
+            onPressed: _toggleFavorite,
+            color: isFavorite ? Colors.red : Colors.grey,
           ),
         ],
       ),
